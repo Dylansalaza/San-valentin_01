@@ -1,0 +1,893 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MI SAN VALENTIN 💕</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&family=Cinzel:wght@600&display=swap');
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box
+        }
+
+        html,
+        body {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background: #000
+        }
+
+        canvas {
+            display: block;
+            position: fixed;
+            top: 0;
+            left: 0
+        }
+
+        body {
+            cursor: grab
+        }
+
+        body.dragging {
+            cursor: grabbing
+        }
+
+        #ui {
+            position: fixed;
+            top: 18px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 20;
+            text-align: center;
+            pointer-events: none
+        }
+
+        #ui h1 {
+            font-family: 'Cinzel', serif;
+            font-size: clamp(13px, 2.2vw, 22px);
+            background: linear-gradient(120deg, #ffb3c6, #ff4d8d, #c77dff, #ffd6a5);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: .13em;
+            filter: drop-shadow(0 0 12px rgba(255, 77, 141, .85));
+            white-space: nowrap
+        }
+
+        #ui p {
+            color: rgba(255, 200, 220, .55);
+            font-family: 'Dancing Script', cursive;
+            font-size: 13px;
+            margin-top: 2px
+        }
+
+        #hint {
+            position: fixed;
+            bottom: 14px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(255, 255, 255, .05);
+            border: 1px solid rgba(255, 255, 255, .13);
+            backdrop-filter: blur(10px);
+            color: rgba(255, 255, 255, .55);
+            font-family: 'Cinzel', serif;
+            font-size: 11px;
+            padding: 5px 18px;
+            border-radius: 30px;
+            z-index: 20;
+            pointer-events: none;
+            white-space: nowrap;
+            letter-spacing: .04em
+        }
+
+        /* Photo frame style */
+        .photo-label {
+            position: absolute;
+            bottom: -18px;
+            left: 50%;
+            transform: translateX(-50%);
+            white-space: nowrap;
+            font-family: 'Dancing Script', cursive;
+            font-size: 11px;
+            color: rgba(255, 180, 210, .8);
+            pointer-events: none;
+        }
+
+        /* Loader para mostrar que se están cargando las fotos */
+        #loader {
+            position: fixed;
+            bottom: 50px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: rgba(255, 200, 220, .8);
+            font-family: 'Cinzel', serif;
+            font-size: 12px;
+            background: rgba(0, 0, 0, 0.5);
+            padding: 5px 15px;
+            border-radius: 20px;
+            backdrop-filter: blur(5px);
+            border: 1px solid rgba(255, 255, 255, .1);
+            z-index: 30;
+            pointer-events: none;
+            transition: opacity 1s;
+        }
+    </style>
+</head>
+
+<body>
+
+    
+<!-- Botón para abrir la carta (esquina inferior derecha) -->
+<div id="openLetterBtn" style="position:fixed; bottom:80px; right:20px; z-index:100; background:linear-gradient(135deg, #ff4d8d, #ff80ab); color:white; font-family:'Cinzel', serif; padding:12px 20px; border-radius:40px; cursor:pointer; box-shadow:0 0 20px rgba(255,77,141,0.7); border:2px solid rgba(255,255,255,0.5); backdrop-filter:blur(5px); display:flex; align-items:center; gap:10px; transition:all 0.3s;">
+  <span style="font-size:24px;">💌</span>
+  <span style="font-size:14px; font-weight:bold;">CARTA DE AMOR</span>
+</div>
+
+<!-- La carta (oculta inicialmente) -->
+<div id="loveLetter" style="position:fixed; top:50%; left:50%; transform:translate(-50%,-50%) scale(0.9); width:min(90%, 500px); max-height:80vh; overflow-y:auto; z-index:200; background:rgba(255,245,240,0.95); backdrop-filter:blur(15px); border-radius:20px; padding:30px; box-shadow:0 0 50px rgba(255,77,141,0.8), 0 0 0 2px rgba(255,200,220,0.5); font-family:'Dancing Script', cursive; opacity:0; visibility:hidden; transition:all 0.5s; border:1px solid rgba(255,255,255,0.8);">
+  
+  <!-- Botón para cerrar -->
+  <div id="closeLetterBtn" style="position:absolute; top:15px; right:20px; font-size:28px; cursor:pointer; color:#ff4d8d; background:rgba(255,255,255,0.8); width:40px; height:40px; border-radius:50%; display:flex; align-items:center; justify-content:center; box-shadow:0 2px 10px rgba(0,0,0,0.1);">&times;</div>
+  
+  <!-- Contenido de la carta -->
+  <div style="text-align:center; margin-bottom:20px;">
+    <span style="font-size:50px;">💕</span>
+    <h2 style="font-family:'Cinzel', serif; color:#c77dff; margin:10px 0 5px; letter-spacing:2px;">PARA TI, MI AMOR</h2>
+    <div style="width:80px; height:2px; background:linear-gradient(90deg, transparent, #ff4d8d, #c77dff, transparent); margin:10px auto;"></div>
+  </div>
+  
+  <!-- POEMA ROMÁNTICO -->
+  <div style="font-size:20px; line-height:1.8; color:#4a2b3b; text-align:center; padding:10px;">
+    <p>En el universo de mi corazón,</p>
+    <p>brillas más que mil estrellas,</p>
+    <p>tu amor es mi única razón,</p>
+    <p>la melodía más bella.</p>
+    
+    <p style="margin-top:20px;">💫</p>
+    
+    <p>Cada latido lleva tu nombre,</p>
+    <p>cada suspiro es para ti,</p>
+    <p>eres la mujer que todo hombre</p>
+    <p>soñaría tener junto a sí.</p>
+    
+    <p style="margin-top:20px;">🌹</p>
+    
+    <p>En esta galaxia de amor sin fin,</p>
+    <p>quiero que sepas, mi dulce bien,</p>
+    <p>que eres mi principio y mi fin,</p>
+    <p>mi ayer, mi hoy y mi también.</p>
+    
+    <p style="margin-top:30px; font-size:24px;">❤️</p>
+    
+    <p style="font-size:22px; color:#ff4d8d; margin-top:20px;">Feliz San Valentín</p>
+    <p style="font-size:18px; font-family:'Cinzel', serif;">Con todo mi amor para ti</p>
+    <p style="font-size:24px; font-weight:bold; color:#c77dff; margin-top:5px;"></p>
+    
+    <div style="margin-top:20px; font-size:14px; color:#888;">14 de Febrero, 2026</div>
+  </div>
+</div>
+
+<script>
+// Script para manejar la carta
+document.addEventListener('DOMContentLoaded', function() {
+  const openBtn = document.getElementById('openLetterBtn');
+  const closeBtn = document.getElementById('closeLetterBtn');
+  const letter = document.getElementById('loveLetter');
+  
+  openBtn.addEventListener('click', function() {
+    letter.style.visibility = 'visible';
+    letter.style.opacity = '1';
+    letter.style.transform = 'translate(-50%,-50%) scale(1)';
+    openBtn.style.opacity = '0';
+    openBtn.style.pointerEvents = 'none';
+  });
+  
+  closeBtn.addEventListener('click', function() {
+    letter.style.opacity = '0';
+    letter.style.transform = 'translate(-50%,-50%) scale(0.9)';
+    setTimeout(() => {
+      letter.style.visibility = 'hidden';
+      openBtn.style.opacity = '1';
+      openBtn.style.pointerEvents = 'auto';
+    }, 500);
+  });
+  
+  // Cerrar con tecla ESC
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape' && letter.style.visibility === 'visible') {
+      closeBtn.click();
+    }
+  });
+});
+</script>
+
+<style>
+/* Efecto de brillo para el botón */
+#openLetterBtn:hover {
+  transform: scale(1.05);
+  box-shadow:0 0 30px rgba(255,77,141,0.9);
+}
+
+/* Scroll personalizado para la carta */
+#loveLetter::-webkit-scrollbar {
+  width: 8px;
+}
+#loveLetter::-webkit-scrollbar-track {
+  background: rgba(255,220,240,0.3);
+  border-radius: 10px;
+}
+#loveLetter::-webkit-scrollbar-thumb {
+  background: linear-gradient(#ff4d8d, #c77dff);
+  border-radius: 10px;
+}
+</style>
+    <canvas id="c"></canvas>
+
+    <div id="ui">
+        <h1>✦ MI SAN VALENTÍN ✦</h1>
+        <p>Un universo de amor para ti 💕</p>
+    </div>
+    <div id="hint">🖱 Arrastra · Rueda = zoom · Clic en las fotos ✨</div>
+    <div id="loader">📸 Cargando fotos desde la carpeta...</div>
+
+    <script>
+        /* ══════════════════════════════════════════════════════
+           UTILS
+        ══════════════════════════════════════════════════════ */
+        const rand = (a, b) => Math.random() * (b - a) + a;
+        const pick = a => a[Math.floor(Math.random() * a.length)];
+        const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
+        const PI2 = Math.PI * 2;
+
+        /* ── HSL → RGB (0-1) ── */
+        function hsl(h, s, l) {
+            h = ((h % 360) + 360) % 360;
+            const a = s * Math.min(l, 1 - l);
+            const f = n => { const k = (n + h / 30) % 12; return l - a * Math.max(-1, Math.min(k - 3, Math.min(9 - k, 1))) };
+            return [f(0), f(8), f(4)];
+        }
+        function hslStr(h, s, l, a = 1) {
+            const [r, g, b] = hsl(h, s, l);
+            return `rgba(${r * 255 | 0},${g * 255 | 0},${b * 255 | 0},${a.toFixed(2)})`;
+        }
+
+        /* ── 3D rotation helpers (precomputed matrices) ── */
+        function makeRotMatrix(rx, ry, rz) {
+            const cx = Math.cos(rx), sx = Math.sin(rx);
+            const cy = Math.cos(ry), sy = Math.sin(ry);
+            const cz = Math.cos(rz), sz = Math.sin(rz);
+            // Combined ZXY rotation
+            return [
+                cy * cz + sy * sx * sz, -cy * sz + sy * sx * cz, sy * cx,
+                cx * sz, cx * cz, -sx,
+                -sy * cz + cy * sx * sz, sy * sz + cy * sx * cz, cy * cx
+            ];
+        }
+        function applyMat(m, x, y, z) {
+            return {
+                x: m[0] * x + m[1] * y + m[2] * z,
+                y: m[3] * x + m[4] * y + m[5] * z,
+                z: m[6] * x + m[7] * y + m[8] * z
+            };
+        }
+
+        /* ── Perspective projection ── */
+        let FOV = 520, W, H, CX, CY;
+        function project(x, y, z) {
+            const d = FOV + z;
+            if (d <= 1) return null;
+            const s = FOV / d;
+            return { sx: CX + x * s, sy: CY + y * s, sc: s, d };
+        }
+
+        /* ══════════════════════════════════════════════════════
+           CANVAS SETUP
+        ══════════════════════════════════════════════════════ */
+        const cv = document.getElementById('c');
+        const ctx = cv.getContext('2d', { alpha: false });
+        function resize() {
+            W = cv.width = window.innerWidth;
+            H = cv.height = window.innerHeight;
+            CX = W / 2; CY = H / 2;
+        }
+        resize();
+        window.addEventListener('resize', resize);
+
+        /* ══════════════════════════════════════════════════════
+           GALAXIA — PARTÍCULAS OPTIMIZADAS
+           Usamos Float32Arrays para velocidad máxima
+        ══════════════════════════════════════════════════════ */
+        const ARMS = 3, PTS_ARM = 3200, PTS_HALO = 900, PTS_CORE = 500;
+        const MAX_R = 300;
+        const TOTAL = ARMS * PTS_ARM + PTS_HALO + PTS_CORE;
+
+        // Arrays tipados para rendimiento
+        const gx = new Float32Array(TOTAL), gy = new Float32Array(TOTAL), gz = new Float32Array(TOTAL);
+        const gr = new Float32Array(TOTAL);
+        const gR = new Uint8Array(TOTAL), gG = new Uint8Array(TOTAL), gB = new Uint8Array(TOTAL), gA = new Uint8Array(TOTAL);
+
+        let pi = 0;
+        // Brazos
+        for (let a = 0; a < ARMS; a++) {
+            const off = (PI2 / ARMS) * a;
+            const hueBase = [340, 282, 355][a];
+            for (let i = 0; i < PTS_ARM; i++) {
+                const t = i / PTS_ARM;
+                const r = 16 + t * MAX_R;
+                const ang = off + t * Math.PI * 5.0;
+                const sp = 3 + t * 24;
+                const perp = (Math.random() - .5) * sp * 2.2;
+                const along = (Math.random() - .5) * sp * .5;
+                const co = Math.cos(ang), si = Math.sin(ang);
+                gx[pi] = (r + along) * co + perp * (-si);
+                gz[pi] = (r + along) * si + perp * co;
+                gy[pi] = (Math.random() - .5) * (4 + t * 14);
+                gr[pi] = t < .18 ? rand(1.4, 3.2) : rand(.4, 1.6);
+                const h = hueBase + rand(-20, 20), s = rand(.7, 1), l = rand(.55, .88);
+                const [rr, gg, bb] = hsl(h, s, l);
+                gR[pi] = rr * 255 | 0; gG[pi] = gg * 255 | 0; gB[pi] = bb * 255 | 0;
+                gA[pi] = ((rand(.3, .92) * (1 - t * .42)) * 255) | 0;
+                pi++;
+            }
+        }
+        // Halo
+        for (let i = 0; i < PTS_HALO; i++) {
+            const ang = Math.random() * PI2, r = rand(MAX_R * .42, MAX_R * 1.30);
+            gx[pi] = r * Math.cos(ang); gz[pi] = r * Math.sin(ang); gy[pi] = (Math.random() - .5) * 20;
+            gr[pi] = rand(.3, .85);
+            const [rr, gg, bb] = hsl(rand(295, 355), .65, rand(.5, .72));
+            gR[pi] = rr * 255 | 0; gG[pi] = gg * 255 | 0; gB[pi] = bb * 255 | 0;
+            gA[pi] = (rand(.04, .16) * 255) | 0; pi++;
+        }
+        // Núcleo
+        for (let i = 0; i < PTS_CORE; i++) {
+            const ang = Math.random() * PI2, r = Math.pow(Math.random(), 2) * 22;
+            gx[pi] = r * Math.cos(ang); gz[pi] = r * Math.sin(ang); gy[pi] = (Math.random() - .5) * 5;
+            gr[pi] = rand(.9, 2.8);
+            const [rr, gg, bb] = hsl(rand(0, 40), .95, rand(.8, 1));
+            gR[pi] = rr * 255 | 0; gG[pi] = gg * 255 | 0; gB[pi] = bb * 255 | 0;
+            gA[pi] = (rand(.65, .98) * 255) | 0; pi++;
+        }
+
+        /* ══════════════════════════════════════════════════════
+           ESTRELLAS DE FONDO (no rotan)
+        ══════════════════════════════════════════════════════ */
+        const NS = 1600;
+        const sx2 = new Float32Array(NS), sy2 = new Float32Array(NS), sz2 = new Float32Array(NS);
+        const sr = new Float32Array(NS), sph = new Float32Array(NS), sBase = new Float32Array(NS);
+        for (let i = 0; i < NS; i++) {
+            sx2[i] = rand(-1600, 1600); sy2[i] = rand(-1000, 1000); sz2[i] = rand(-1600, 1600);
+            sr[i] = rand(.2, 1.4); sph[i] = rand(0, PI2); sBase[i] = rand(.12, .85);
+        }
+
+        /* ══════════════════════════════════════════════════════
+           CORAZÓN 3D — Float32 para velocidad
+        ══════════════════════════════════════════════════════ */
+        const NHP = 2800;
+        const hpx = new Float32Array(NHP), hpy = new Float32Array(NHP), hpz = new Float32Array(NHP);
+        const hpr = new Float32Array(NHP);
+        const hpR = new Uint8Array(NHP), hpG = new Uint8Array(NHP), hpB = new Uint8Array(NHP);
+        for (let i = 0; i < NHP; i++) {
+            const t = Math.random() * PI2, phi = (Math.random() - .5) * Math.PI * .75, s = rand(.9, 1.1) * 52;
+            const hx = 16 * Math.pow(Math.sin(t), 3);
+            const hy = 13 * Math.cos(t) - 5 * Math.cos(2 * t) - 2 * Math.cos(3 * t) - Math.cos(4 * t);
+            hpx[i] = hx * s * .058 + (Math.random() - .5) * 1.8;
+            hpy[i] = -hy * s * .058 + (Math.random() - .5) * 1.8;   // negado para corregir eje Y de canvas
+            hpz[i] = Math.cos(phi) * 22 + Math.sin(phi) * 14 + (Math.random() - .5) * 4;
+            hpr[i] = rand(1.2, 3.5);
+            const frac = clamp((hy + 13) / 26, 0, 1);
+            const hh = 340 - frac * 65, ll = rand(.55, .88);
+            const [rr, gg, bb] = hsl(hh, .98, ll);
+            hpR[i] = rr * 255 | 0; hpG[i] = gg * 255 | 0; hpB[i] = bb * 255 | 0;
+        }
+
+        /* ══════════════════════════════════════════════════════
+           PALABRAS DE AMOR
+        ══════════════════════════════════════════════════════ */
+        const WORDS = [
+            // ── ESPAÑOL ──
+            "Amor", "Te quiero", "Mi cielo", "Corazón", "Para siempre",
+            "Mi alma", "Eres mi todo", "Luz mía", "Latido", "Destino",
+            "Mi universo", "Siempre tú", "Te necesito",
+
+            // ── ENGLISH ──
+            "My love", "Forever", "Beloved", "Soul mate", "Be mine",
+            "Always you", "My heart", "Endless love", "You & me", "True love",
+
+            // ── ITALIANO ──
+            "Ti amo", "Amore mio", "Per sempre", "Cuore mio", "Vita mia",
+            "Anima mia", "Solo tu", "Sei la mia vita", "Mio tesoro",
+        ];
+        const WCOLORS = ['#ff4d8d', '#ff80ab', '#ffb3c6', '#d084ff', '#ffd6a5', '#ff6ec7', '#ea80fc'];
+
+        const wordData = WORDS.map((w, i) => {
+            const arm = i % ARMS, step = Math.floor(i / ARMS), total = Math.ceil(WORDS.length / ARMS);
+            const t = step / total;
+            const r = 30 + t * MAX_R * .88;
+            const ang = (PI2 / ARMS) * arm + t * Math.PI * 5.0 + rand(-.2, .2);
+            const sp = 4 + t * 22;
+            const co = Math.cos(ang), si = Math.sin(ang);
+            const perp = (Math.random() - .5) * sp * 1.5;
+            return {
+                w,
+                x: (r + (Math.random() - .5) * sp) * co + perp * (-si),
+                z: (r + (Math.random() - .5) * sp) * si + perp * co,
+                y: (Math.random() - .5) * (8 + t * 25),
+                color: pick(WCOLORS),
+                size: rand(10, 22),
+                fp: rand(0, PI2), fa: rand(1.5, 4), fs: rand(.5, 1.1)
+            };
+        });
+
+        /* ══════════════════════════════════════════════════════
+           FOTOS — se colocan en los brazos de la galaxia
+           AHORA CARGADAS DESDE CARPETA LOCAL (SIN BASE64)
+        ══════════════════════════════════════════════════════ */
+        const photoData = [];  // {img, x,y,z, size, fp,fa,fs}
+
+        // ════════════════════════════════════════════════════════
+        // INSTRUCCIONES PARA COLOCAR TUS FOTOS:
+        // 1. Crea una carpeta llamada "fotos" en el mismo lugar donde
+        //    guardes este archivo HTML
+        // 2. Copia tus fotos dentro de esa carpeta
+        // 3. En la lista de abajo, pon los nombres exactos de tus fotos
+        //    (ejemplo: 'novios.jpg', 'beso.png', 'viaje.jpeg')
+        // ════════════════════════════════════════════════════════
+
+        const PHOTO_FILENAMES = [
+            'foto1.jpg.jpeg',
+            'foto2.jpg.jpeg',
+            'foto3.jpg.jpeg',
+            'foto4.jpg.jpeg',
+            'foto5.jpg.jpeg',
+            'foto6.jpg.jpeg',
+            'foto7.jpg.jpeg',
+            'foto8.jpg.jpeg',
+            'foto9.jpg.jpeg',
+            'foto10.jpg.jpeg',
+            'foto11.jpg.jpeg',
+            'foto12.jpg.jpeg'
+            // Agrega más nombres si tienes más fotos
+            // 'mi_amor.jpg',
+            // 'nosotros.png',
+            // 'recuerdo.jpeg',
+        ];
+
+        // Función para crear una imagen de respaldo (si alguna foto no carga)
+        function createBackupImage(index) {
+            const canvas = document.createElement('canvas');
+            canvas.width = canvas.height = 200;
+            const ctx = canvas.getContext('2d');
+
+            // Fondo romántico con gradiente
+            const gradient = ctx.createLinearGradient(0, 0, 200, 200);
+            gradient.addColorStop(0, '#ff1166');
+            gradient.addColorStop(0.5, '#9900cc');
+            gradient.addColorStop(1, '#ff66aa');
+            ctx.fillStyle = gradient;
+            ctx.fillRect(0, 0, 200, 200);
+
+            // Corazón
+            ctx.shadowColor = 'white';
+            ctx.shadowBlur = 15;
+            ctx.font = 'bold 80px "Dancing Script", cursive';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillStyle = 'white';
+            ctx.fillText('❤️', 100, 100);
+
+            // Texto "Foto"
+            ctx.shadowBlur = 8;
+            ctx.font = 'bold 20px "Cinzel", serif';
+            ctx.fillStyle = '#fff0f5';
+            ctx.fillText(`Foto ${index + 1}`, 100, 160);
+
+            const img = new Image();
+            img.src = canvas.toDataURL();
+            return img;
+        }
+
+        // Función para colocar las fotos en la galaxia (NO MODIFICAR)
+        function placePhotos(imgs) {
+            photoData.length = 0;
+            if (!imgs || imgs.length === 0) {
+                // Si no hay fotos, ocultar el loader
+                const loader = document.getElementById('loader');
+                if (loader) loader.style.opacity = '0';
+                return;
+            }
+
+            const n = imgs.length;
+            imgs.forEach((img, i) => {
+                if (!img) return;
+
+                const arm = i % ARMS;
+                const step = Math.floor(i / ARMS);
+                const total = Math.ceil(n / ARMS);
+
+                // Distribuir a lo largo del brazo, desde radio medio hasta exterior
+                const t = clamp(0.15 + (step / total) * 0.72, 0.12, 0.88);
+                const r = 55 + t * MAX_R * 0.80;
+                const ang = (PI2 / ARMS) * arm + t * Math.PI * 4.7 + rand(-0.22, 0.22);
+                const sp = 5 + t * 14;
+                const co = Math.cos(ang);
+                const si = Math.sin(ang);
+                const perp = (Math.random() - .5) * sp * .8;
+
+                photoData.push({
+                    img,
+                    x: (r + (Math.random() - .5) * sp * .6) * co + perp * (-si),
+                    z: (r + (Math.random() - .5) * sp * .6) * si + perp * co,
+                    y: (Math.random() - .5) * (4 + t * 12),
+                    size: rand(16, 26),
+                    fp: rand(0, PI2),
+                    fa: rand(0.8, 2.2),
+                    fs: rand(.4, .85),
+                });
+            });
+
+            // Ocultar loader
+            const loader = document.getElementById('loader');
+            if (loader) {
+                loader.innerHTML = `✨ ${photoData.length} fotos cargadas`;
+                setTimeout(() => { if (loader) loader.style.opacity = '0'; }, 2000);
+            }
+
+            console.log(`✨ ${photoData.length} fotos colocadas en la galaxia`);
+        }
+
+        // Función para cargar fotos desde la carpeta
+        function loadPhotosFromFolder() {
+            const loader = document.getElementById('loader');
+            if (loader) loader.style.display = 'block';
+
+            console.log('📸 Cargando fotos desde la carpeta "fotos"...');
+            const loadedImages = [];
+            let loadedCount = 0;
+            let errorCount = 0;
+
+            // Si no hay nombres de archivo definidos, mostrar mensaje y terminar
+            if (PHOTO_FILENAMES.length === 0 || PHOTO_FILENAMES[0] === 'foto1.jpg') {
+                console.warn('⚠️ No has personalizado los nombres de las fotos');
+                if (loader) loader.innerHTML = '⚠️ Edita PHOTO_FILENAMES con tus nombres de archivo';
+                // Crear imágenes de respaldo para demostración
+                for (let i = 0; i < 12; i++) {
+                    loadedImages[i] = createBackupImage(i);
+                }
+                placePhotos(loadedImages);
+                return;
+            }
+
+            PHOTO_FILENAMES.forEach((filename, index) => {
+                const img = new Image();
+
+                img.onload = () => {
+                    loadedCount++;
+                    console.log(`✅ Cargada: ${filename}`);
+
+                    if (loader) {
+                        loader.innerHTML = `📸 Cargando fotos: ${loadedCount}/${PHOTO_FILENAMES.length}`;
+                    }
+
+                    if (loadedCount + errorCount === PHOTO_FILENAMES.length) {
+                        console.log(`🎉 Carga completada: ${loadedCount} fotos cargadas`);
+                        placePhotos(loadedImages);
+                    }
+                };
+
+                img.onerror = () => {
+                    errorCount++;
+                    console.error(`❌ Error cargando: ${filename}`);
+                    // Usar imagen de respaldo
+                    loadedImages[index] = createBackupImage(index);
+
+                    if (loader) {
+                        loader.innerHTML = `⚠️ Error: ${filename} - usando respaldo`;
+                    }
+
+                    if (loadedCount + errorCount === PHOTO_FILENAMES.length) {
+                        console.log(`⚠️ Completado con ${errorCount} errores (usando respaldos)`);
+                        placePhotos(loadedImages);
+                    }
+                };
+
+                img.src = `fotos/${filename}`; // Ruta a la carpeta 'fotos'
+                loadedImages[index] = img;
+            });
+        }
+
+        // Iniciar la carga de fotos cuando la página esté lista
+        window.addEventListener('load', () => {
+            // Pequeña pausa para asegurar que todo esté listo
+            setTimeout(loadPhotosFromFolder, 500);
+        });
+
+        /* ══════════════════════════════════════════════════════
+           CÁMARA Y MOVIMIENTO (NO MODIFICAR)
+        ══════════════════════════════════════════════════════ */
+        let camTheta = 0, camPhi = 0;  // control del usuario
+        let zoom = 1.0;
+        const AUTO_ORBIT_SPEED = 0.045;
+
+        // Balanceo autónomo de la galaxia
+        let galRX = 0, galRY = 0, galRZ = 0;
+
+        // Input
+        let drag = false, lastMx = 0, lastMy = 0;
+        document.addEventListener('mousedown', e => { drag = true; lastMx = e.clientX; lastMy = e.clientY; document.body.classList.add('dragging') });
+        document.addEventListener('mouseup', () => { drag = false; document.body.classList.remove('dragging') });
+        document.addEventListener('mousemove', e => {
+            if (!drag) return;
+            camTheta += (e.clientX - lastMx) * .005;
+            camPhi = clamp(camPhi + (e.clientY - lastMy) * .005, -.9, .9);
+            lastMx = e.clientX; lastMy = e.clientY;
+        });
+        document.addEventListener('wheel', e => {
+            zoom = clamp(zoom * (1 - e.deltaY * .0007), .25, 3.5);
+        }, { passive: true });
+        let td0 = null;
+        document.addEventListener('touchstart', e => {
+            if (e.touches.length === 1) { drag = true; lastMx = e.touches[0].clientX; lastMy = e.touches[0].clientY }
+            else if (e.touches.length === 2) td0 = Math.hypot(e.touches[0].clientX - e.touches[1].clientX, e.touches[0].clientY - e.touches[1].clientY);
+        }, { passive: true });
+        document.addEventListener('touchmove', e => {
+            if (e.touches.length === 1 && drag) {
+                camTheta += (e.touches[0].clientX - lastMx) * .005;
+                camPhi = clamp(camPhi + (e.touches[0].clientY - lastMy) * .005, -.9, .9);
+                lastMx = e.touches[0].clientX; lastMy = e.touches[0].clientY;
+            } else if (e.touches.length === 2 && td0) {
+                const d = Math.hypot(e.touches[0].clientX - e.touches[1].clientX, e.touches[0].clientY - e.touches[1].clientY);
+                zoom = clamp(zoom * (d / td0), .25, 3.5); td0 = d;
+            }
+        }, { passive: true });
+        document.addEventListener('touchend', () => { drag = false; td0 = null });
+
+        /* ══════════════════════════════════════════════════════
+           OFFSCREEN BUFFER — pre-render galaxia en buffer separado
+           para máxima fluidez (evita recalcular estado en main thread)
+        ══════════════════════════════════════════════════════ */
+        // Reusable depth-sorted index array
+        const sortBuf = new Float32Array(TOTAL * 2);  // [index, projected_z, ...]
+
+        /* ══════════════════════════════════════════════════════
+           LOOP PRINCIPAL — optimizado al máximo (NO MODIFICAR)
+        ══════════════════════════════════════════════════════ */
+        let time = 0;
+        let lastTS = 0;
+
+        // Arreglo temporal para proyecciones (evitar GC)
+        const tmpProj = { sx: 0, sy: 0, sc: 0, d: 0 };
+
+        function drawFrame(ts) {
+            requestAnimationFrame(drawFrame);
+            const dt = Math.min((ts - lastTS) * .001, .05);  // cap a 50ms para evitar saltos
+            lastTS = ts;
+            time += dt;
+
+            /* ── Matrices de rotación (calculadas UNA vez por frame) ── */
+            galRY = time * 0.030;
+            galRX = Math.sin(time * .26) * .25 + Math.sin(time * .10) * .11;  // arriba/abajo
+            galRZ = Math.sin(time * .19) * .16 + Math.cos(time * .13) * .09;  // izq/der
+
+            // Cámara = auto-orbit + usuario
+            const thetaTotal = time * AUTO_ORBIT_SPEED + camTheta;
+            const phiTotal = 0.50 + camPhi;
+
+            // Dos matrices: galaxia (con balanceo) y cámara
+            const camMat = makeRotMatrix(phiTotal, thetaTotal, 0);
+            const galMat = makeRotMatrix(galRX, galRY, galRZ);
+
+            const Z = zoom;
+            const F = FOV * Z;
+
+            // ── Fondo (limpiar con negro sólido — más rápido que fillRect con alpha) ──
+            ctx.fillStyle = '#00000a';
+            ctx.fillRect(0, 0, W, H);
+
+            /* ── 1. ESTRELLAS DE FONDO ── */
+            for (let i = 0; i < NS; i++) {
+                const twk = .55 + .45 * Math.sin(time * 1.3 + sph[i]);
+                // Las estrellas solo rotan con la cámara (no con la galaxia)
+                const cv = applyMat(camMat, sx2[i], sy2[i], sz2[i]);
+                const d = F + cv.z;
+                if (d <= 1) continue;
+                const sc = F / d;
+                const px = CX + cv.x * sc, py = CY + cv.y * sc;
+                const a = sBase[i] * twk;
+                ctx.globalAlpha = a;
+                ctx.fillStyle = '#ffffff';
+                const rr = Math.max(.2, sr[i] * sc * .8);
+                ctx.beginPath(); ctx.arc(px, py, rr, 0, PI2); ctx.fill();
+            }
+            ctx.globalAlpha = 1;
+
+            /* ── 2. NEBULOSA CENTRAL (siempre visible en pantalla) ── */
+            const nebSizes = [240 * Z, 175 * Z, 120 * Z];
+            const nebCols = [
+                `rgba(255,0,80,${(.11 + Math.sin(time * .4) * .03).toFixed(2)})`,
+                `rgba(130,0,255,${(.10 + Math.sin(time * .3) * .03).toFixed(2)})`,
+                `rgba(255,90,160,${(.07).toFixed(2)})`
+            ];
+            nebSizes.forEach((nr, i) => {
+                const gr = ctx.createRadialGradient(CX, CY, 0, CX, CY, nr);
+                gr.addColorStop(0, nebCols[i]); gr.addColorStop(.5, nebCols[i].replace(/[\d.]+\)$/, '0.01)')); gr.addColorStop(1, 'transparent');
+                ctx.beginPath(); ctx.arc(CX, CY, nr, 0, PI2); ctx.fillStyle = gr; ctx.fill();
+            });
+
+            /* ── 3. PARTÍCULAS DE LA GALAXIA ── */
+            // Aplicar galMat + camMat a cada punto, proyectar, dibujar
+            // Recolectar proyecciones con depth para ordenar
+            let visCount = 0;
+            const vis = [];  // {sx,sy,sc,r,R,G,B,A}
+
+            for (let i = 0; i < TOTAL; i++) {
+                // Transformar: primero rotación galáctica, luego cámara
+                const g = applyMat(galMat, gx[i], gy[i], gz[i]);
+                const c = applyMat(camMat, g.x, g.y, g.z);
+                const d = F + c.z;
+                if (d <= 1) continue;
+                const sc = F / d;
+                const psx = CX + c.x * sc, psy = CY + c.y * sc;
+                const rr = gr[i] * sc * 1.1;
+                if (rr < .1) continue;
+                // Frustum cull
+                if (psx < -50 || psx > W + 50 || psy < -50 || psy > H + 50) continue;
+                vis.push({ sx: psx, sy: psy, sc, r: rr, R: gR[i], G: gG[i], B: gB[i], A: gA[i] });
+            }
+            // Ordenar atrás→adelante (painter's algorithm)
+            vis.sort((a, b) => a.sc - b.sc);
+
+            // Dibujar con batcheo por alpha para reducir llamadas de estado
+            for (let i = 0; i < vis.length; i++) {
+                const v = vis[i];
+                ctx.globalAlpha = v.A / 255;
+                ctx.fillStyle = `rgb(${v.R},${v.G},${v.B})`;
+                ctx.beginPath(); ctx.arc(v.sx, v.sy, v.r, 0, PI2); ctx.fill();
+            }
+            ctx.globalAlpha = 1;
+
+            /* ── 4. RESPLANDOR CENTRAL ── */
+            const cg = ctx.createRadialGradient(CX, CY, 0, CX, CY, (120 + Math.sin(time * 1.4) * 10) * Z);
+            const wb = (.52 + Math.sin(time * 2) * .1).toFixed(2);
+            cg.addColorStop(0, `rgba(255,255,255,${wb})`);
+            cg.addColorStop(.12, 'rgba(255,150,185,.60)');
+            cg.addColorStop(.42, 'rgba(155,50,255,.28)');
+            cg.addColorStop(1, 'transparent');
+            ctx.beginPath(); ctx.arc(CX, CY, (120 + Math.sin(time * 1.4) * 10) * Z, 0, PI2);
+            ctx.fillStyle = cg; ctx.fill();
+
+            /* ── 5. FOTOS EN LOS BRAZOS (AHORA USA TUS IMÁGENES) ── */
+            const photoVis = [];
+            for (let i = 0; i < photoData.length; i++) {
+                const pd = photoData[i];
+                if (!pd || !pd.img) continue;
+
+                const fy = pd.y + Math.sin(time * pd.fs + pd.fp) * pd.fa;
+                const g = applyMat(galMat, pd.x, fy, pd.z);
+                const c = applyMat(camMat, g.x, g.y, g.z);
+                const d = F + c.z;
+                if (d <= 1) continue;
+                const sc = F / d;
+                const psx = CX + c.x * sc, psy = CY + c.y * sc;
+                // Escala natural con perspectiva — multiplicador reducido para no dominar
+                const sz = pd.size * sc * Z * 2.2;
+                if (sz < 5 || psx < -sz || psx > W + sz || psy < -sz || psy > H + sz) continue;
+                photoVis.push({ img: pd.img, sx: psx, sy: psy, sz, sc, d });
+            }
+            photoVis.sort((a, b) => a.sc - b.sc);
+
+            photoVis.forEach(pv => {
+                const { img, sx, sy, sz, sc } = pv;
+                if (sz < 5 || !img) return;
+                const half = sz / 2;
+                // Opacidad proporcional a profundidad — lejos=tenue
+                const alpha = clamp(sc * 1.6, .08, .95);
+                ctx.save();
+                ctx.translate(sx, sy);
+                ctx.globalAlpha = alpha;
+                // Halo rosado detrás
+                const halo = ctx.createRadialGradient(0, 0, half * .6, 0, 0, half * 1.7);
+                halo.addColorStop(0, 'rgba(255,80,150,0.18)');
+                halo.addColorStop(1, 'transparent');
+                ctx.fillStyle = halo;
+                ctx.beginPath(); ctx.arc(0, 0, half * 1.7, 0, PI2); ctx.fill();
+                // Marco y clip circular
+                ctx.shadowColor = 'rgba(255,100,180,0.7)';
+                ctx.shadowBlur = half * .5;
+                ctx.beginPath(); ctx.arc(0, 0, half + 1.2, 0, PI2);
+                ctx.strokeStyle = 'rgba(255,140,190,.9)';
+                ctx.lineWidth = Math.max(.8, half * .06);
+                ctx.stroke();
+                ctx.shadowBlur = 0;
+                ctx.beginPath(); ctx.arc(0, 0, half, 0, PI2); ctx.clip();
+                ctx.drawImage(img, -half, -half, sz, sz);
+                ctx.restore();
+                ctx.globalAlpha = 1;
+            });
+
+            /* ── 6. CORAZÓN 3D ── */
+            const beat = Math.max(0, Math.sin(time * 4.2));
+            const beat2 = Math.max(0, Math.sin(time * 4.2 - .65));
+            const pulse = 1 + beat * .20 + beat2 * .09;
+            const hRotY = time * 0.85;
+            const hRotX = Math.sin(time * 1.1) * .32;
+            const hRotZ = Math.sin(time * .82) * .20;
+            const hMat = makeRotMatrix(hRotX, hRotY, hRotZ);
+
+            // Halo del corazón
+            const haloR = (130 + beat * 80) * Z;
+            const hg = ctx.createRadialGradient(CX, CY, 0, CX, CY, haloR);
+            hg.addColorStop(0, `rgba(255,60,130,${(.28 + beat * .22).toFixed(2)})`);
+            hg.addColorStop(.5, `rgba(180,0,220,${(.10 + beat * .10).toFixed(2)})`);
+            hg.addColorStop(1, 'transparent');
+            ctx.beginPath(); ctx.arc(CX, CY, haloR, 0, PI2); ctx.fillStyle = hg; ctx.fill();
+
+            // Onda de choque
+            if (beat > .65) {
+                const sr2 = (155 + beat * 180) * Z;
+                const sg = ctx.createRadialGradient(CX, CY, haloR * .5, CX, CY, sr2);
+                sg.addColorStop(0, 'transparent');
+                sg.addColorStop(.7, `rgba(255,80,160,${(beat * .12).toFixed(2)})`);
+                sg.addColorStop(1, 'transparent');
+                ctx.beginPath(); ctx.arc(CX, CY, sr2, 0, PI2); ctx.fillStyle = sg; ctx.fill();
+            }
+
+            // Proyectar partículas del corazón
+            const hpVis = [];
+            for (let i = 0; i < NHP; i++) {
+                const h = applyMat(hMat, hpx[i] * pulse, hpy[i] * pulse, hpz[i] * pulse);
+                const c2 = applyMat(camMat, h.x * Z, h.y * Z, h.z * Z);
+                const d = F + c2.z;
+                if (d <= 1) continue;
+                const sc = F / d;
+                const psx = CX + c2.x * sc, psy = CY + c2.y * sc;
+                const rr = hpr[i] * sc * 2.0;
+                if (rr < .1) continue;
+                hpVis.push({ sx: psx, sy: psy, sc, r: rr, R: hpR[i], G: hpG[i], B: hpB[i] });
+            }
+            hpVis.sort((a, b) => a.sc - b.sc);
+            hpVis.forEach(p => {
+                ctx.fillStyle = `rgba(${p.R},${p.G},${p.B},0.92)`;
+                ctx.beginPath(); ctx.arc(p.sx, p.sy, p.r, 0, PI2); ctx.fill();
+            });
+
+            /* ── 7. PALABRAS DE AMOR ── */
+            const wVis = [];
+            wordData.forEach(wd => {
+                const wy = wd.y + Math.sin(time * wd.fs + wd.fp) * wd.fa;
+                const g = applyMat(galMat, wd.x, wy, wd.z);
+                const c = applyMat(camMat, g.x, g.y, g.z);
+                const d = F + c.z;
+                if (d <= 1) return;
+                const sc = F / d;
+                wVis.push({ wd, sx: CX + c.x * sc, sy: CY + c.y * sc, sc, d });
+            });
+            wVis.sort((a, b) => a.sc - b.sc);
+
+            wVis.forEach(({ wd, sx, sy, sc }) => {
+                const fsc = clamp(sc * 1.6, .05, 2.2);
+                const fsz = wd.size * fsc;
+                if (fsz < 4) return;
+                const alpha = clamp(fsc * 1.1, .0, 1);
+                ctx.globalAlpha = alpha;
+                ctx.font = `700 ${fsz.toFixed(1)}px 'Dancing Script',cursive`;
+                ctx.textAlign = 'center';
+                ctx.shadowColor = wd.color; ctx.shadowBlur = fsz * 1.3;
+                ctx.fillStyle = wd.color; ctx.fillText(wd.w, sx, sy);
+                ctx.shadowBlur = fsz * 2.8; ctx.globalAlpha = alpha * .35;
+                ctx.fillText(wd.w, sx, sy);
+            });
+            ctx.globalAlpha = 1; ctx.shadowBlur = 0;
+        }
+
+        requestAnimationFrame(drawFrame);
+
+    </script>
+</body>
+
+
+</html>
